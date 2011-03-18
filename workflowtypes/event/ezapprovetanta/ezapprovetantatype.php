@@ -447,7 +447,7 @@ class eZApproveTantaType extends eZWorkflowEventType
                     if ( is_array( $userGroupIDList ) and
                          count( $userGroupIDList ) > 0 )
                     {
-                        $returnState = eZApproveTypeTanta::validateGroupIDList( $userGroupIDList, $reason );
+                        $returnState = eZApproveTantaType::validateGroupIDList( $userGroupIDList, $reason );
                     }
                 }
             }
