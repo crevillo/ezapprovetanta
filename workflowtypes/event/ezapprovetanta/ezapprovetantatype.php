@@ -51,9 +51,9 @@ class eZApproveTantaType extends eZWorkflowEventType
     const VERSION_OPTION_EXCEPT_FIRST = 2;
     const VERSION_OPTION_ALL = 3;
 
-    function eZApproveTypeTanta()
+    function eZApproveTantaType()
     {
-        $this->eZWorkflowEventType( eZApproveTypeTanta::WORKFLOW_TYPE_STRING, ezpI18n::tr( 'kernel/workflow/event', "Approve" ) );
+        $this->eZWorkflowEventType( eZApproveTantaType::WORKFLOW_TYPE_STRING, ezpI18n::tr( 'kernel/workflow/event', "Approve" ) );
         $this->setTriggerTypes( array( 'content' => array( 'publish' => array( 'before' ) ) ) );
     }
 
@@ -101,7 +101,7 @@ class eZApproveTantaType extends eZWorkflowEventType
 
             case 'version_option':
             {
-                $returnValue = eZApproveTypeTanta::VERSION_OPTION_ALL & $event->attribute( 'data_int3' );
+                $returnValue = eZApproveTantaType::VERSION_OPTION_ALL & $event->attribute( 'data_int3' );
             }break;
 
             default:
@@ -159,8 +159,8 @@ class eZApproveTantaType extends eZWorkflowEventType
 
     function execute( $process, $event )
     {
-        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $process, 'eZApproveTypeTanta::execute' );
-        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $event, 'eZApproveTypeTanta::execute' );
+        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $process, 'eZApproveTantaType::execute' );
+        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $event, 'eZApproveTantaType::execute' );
         $parameters = $process->attribute( 'parameter_list' );
         $versionID = $parameters['version'];
         $objectID = $parameters['object_id'];
@@ -168,7 +168,7 @@ class eZApproveTantaType extends eZWorkflowEventType
 
         if ( !$object )
         {
-            eZDebugSetting::writeError( 'kernel-workflow-approve', "No object with ID $objectID", 'eZApproveTypeTanta::execute' );
+            eZDebugSetting::writeError( 'kernel-workflow-approve', "No object with ID $objectID", 'eZApproveTantaType::execute' );
             return eZWorkflowType::STATUS_WORKFLOW_CANCELLED;
         }
 
@@ -176,7 +176,7 @@ class eZApproveTantaType extends eZWorkflowEventType
 
         if ( !$version )
         {
-            eZDebugSetting::writeError( 'kernel-workflow-approve', "No version $versionID for object with ID $objectID", 'eZApproveTypeTanta::execute' );
+            eZDebugSetting::writeError( 'kernel-workflow-approve', "No version $versionID for object with ID $objectID", 'eZApproveTantaType::execute' );
             return eZWorkflowType::STATUS_WORKFLOW_CANCELLED;
         }
 
@@ -191,7 +191,7 @@ class eZApproveTantaType extends eZWorkflowEventType
                     $parentNode = $nodeAssignment->getParentNode();
                     if( $parentNode === null )
                     {
-                        eZDebugSetting::writeError( 'kernel-workflow-approve', "No parent node for object with ID $objectID version $versionID", 'eZApproveTypeTanta::execute' );
+                        eZDebugSetting::writeError( 'kernel-workflow-approve', "No parent node for object with ID $objectID version $versionID", 'eZApproveTantaType::execute' );
                         return eZWorkflowType::STATUS_WORKFLOW_CANCELLED;
                     }
                 }
@@ -200,8 +200,8 @@ class eZApproveTantaType extends eZWorkflowEventType
 
         // version option checking
         $version_option = $event->attribute( 'version_option' );
-        if ( ( $version_option == eZApproveTypeTanta::VERSION_OPTION_FIRST_ONLY and $parameters['version'] > 1 ) or
-             ( $version_option == eZApproveTypeTanta::VERSION_OPTION_EXCEPT_FIRST and $parameters['version'] == 1 ) )
+        if ( ( $version_option == eZApproveTantaType::VERSION_OPTION_FIRST_ONLY and $parameters['version'] > 1 ) or
+             ( $version_option == eZApproveTantaType::VERSION_OPTION_EXCEPT_FIRST and $parameters['version'] == 1 ) )
         {
             return eZWorkflowType::STATUS_ACCEPTED;
         }
@@ -228,14 +228,14 @@ class eZApproveTantaType extends eZWorkflowEventType
         $approveGroups =    $event->attribute( 'data_text4' ) == '' ? array() : explode( ',', $event->attribute( 'data_text4' ) );
         $languageMask = $event->attribute( 'data_int2' );
 
-        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $user, 'eZApproveTypeTanta::execute::user' );
-        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $userGroups, 'eZApproveTypeTanta::execute::userGroups' );
-        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $editors, 'eZApproveTypeTanta::execute::editor' );
-        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $approveGroups, 'eZApproveTypeTanta::execute::approveGroups' );
-        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $workflowSections, 'eZApproveTypeTanta::execute::workflowSections' );
-        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $workflowGroups, 'eZApproveTypeTanta::execute::workflowGroups' );
-        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $languageMask, 'eZApproveTypeTanta::execute::languageMask' );
-        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $object->attribute( 'section_id'), 'eZApproveTypeTanta::execute::section_id' );
+        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $user, 'eZApproveTantaType::execute::user' );
+        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $userGroups, 'eZApproveTantaType::execute::userGroups' );
+        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $editors, 'eZApproveTantaType::execute::editor' );
+        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $approveGroups, 'eZApproveTantaType::execute::approveGroups' );
+        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $workflowSections, 'eZApproveTantaType::execute::workflowSections' );
+        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $workflowGroups, 'eZApproveTantaType::execute::workflowGroups' );
+        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $languageMask, 'eZApproveTantaType::execute::languageMask' );
+        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $object->attribute( 'section_id'), 'eZApproveTantaType::execute::section_id' );
 
         $section = $object->attribute( 'section_id' );
         $correctSection = false;
@@ -322,20 +322,20 @@ class eZApproveTantaType extends eZWorkflowEventType
             {
                 $this->createApproveCollaboration( $process, $event, $user->id(), $object->attribute( 'id' ), $versionID, $approveUserIDArray );
                 $this->setInformation( "We are going to create approval" );
-                $process->setAttribute( 'event_state', eZApproveTypeTanta::COLLABORATION_CREATED );
+                $process->setAttribute( 'event_state', eZApproveTantaType::COLLABORATION_CREATED );
                 $process->store();
                 eZDebugSetting::writeDebug( 'kernel-workflow-approve', $this, 'approve execute' );
                 return eZWorkflowType::STATUS_DEFERRED_TO_CRON_REPEAT;
             }
-            else if ( $process->attribute( 'event_state') == eZApproveTypeTanta::COLLABORATION_NOT_CREATED )
+            else if ( $process->attribute( 'event_state') == eZApproveTantaType::COLLABORATION_NOT_CREATED )
             {
                 eZApproveCollaborationHandler::activateApproval( $collaborationID );
-                $process->setAttribute( 'event_state', eZApproveTypeTanta::COLLABORATION_CREATED );
+                $process->setAttribute( 'event_state', eZApproveTantaType::COLLABORATION_CREATED );
                 $process->store();
                 eZDebugSetting::writeDebug( 'kernel-workflow-approve', $this, 'approve re-execute' );
                 return eZWorkflowType::STATUS_DEFERRED_TO_CRON_REPEAT;
             }
-            else //eZApproveTypeTanta::COLLABORATION_CREATED
+            else //eZApproveTantaType::COLLABORATION_CREATED
             {
                 $this->setInformation( "we are checking approval now" );
                 eZDebugSetting::writeDebug( 'kernel-workflow-approve', $event, 'check approval' );
@@ -410,7 +410,7 @@ class eZApproveTantaType extends eZWorkflowEventType
             if ( is_array( $approversIDs ) and
                  count( $approversIDs ) > 0 )
             {
-                $returnState = eZApproveTypeTanta::validateUserIDList( $approversIDs, $reason );
+                $returnState = eZApproveTantaType::validateUserIDList( $approversIDs, $reason );
             }
             else
                 $returnState = false;
@@ -422,7 +422,7 @@ class eZApproveTantaType extends eZWorkflowEventType
                 if ( is_array( $userGroupIDList ) and
                      count( $userGroupIDList ) > 0 )
                 {
-                    $returnState = eZApproveTypeTanta::validateGroupIDList( $userGroupIDList, $reason );
+                    $returnState = eZApproveTantaType::validateGroupIDList( $userGroupIDList, $reason );
                 }
                 else if ( $returnState === false )
                 {
@@ -472,12 +472,12 @@ class eZApproveTantaType extends eZWorkflowEventType
                             {
                             case "AddApproveUsers":
                                 {
-                                    $returnState = eZApproveTypeTanta::validateUserIDList( $objectIDArray, $reason );
+                                    $returnState = eZApproveTantaType::validateUserIDList( $objectIDArray, $reason );
                                 } break;
                             case 'AddApproveGroups':
                             case 'AddExcludeUser':
                                 {
-                                    $returnState = eZApproveTypeTanta::validateGroupIDList( $objectIDArray, $reason );
+                                    $returnState = eZApproveTantaType::validateGroupIDList( $objectIDArray, $reason );
                                 } break;
                             case 'AddExcludedGroups':
                                 {
@@ -545,7 +545,7 @@ class eZApproveTantaType extends eZWorkflowEventType
                     $versionOption = $versionOption | $vv;
                 }
             }
-            $versionOption = $versionOption & eZApproveTypeTanta::VERSION_OPTION_ALL;
+            $versionOption = $versionOption & eZApproveTantaType::VERSION_OPTION_ALL;
             $event->setAttribute( 'data_int3', $versionOption );
         }
 
@@ -781,6 +781,6 @@ class eZApproveTantaType extends eZWorkflowEventType
     }
 }
 
-eZWorkflowEventType::registerEventType( eZApproveTypeTanta::WORKFLOW_TYPE_STRING, "eZApproveTypeTanta" );
+eZWorkflowEventType::registerEventType( eZApproveTantaType::WORKFLOW_TYPE_STRING, "eZApproveTantaType" );
 
 ?>
