@@ -184,9 +184,11 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
      * @param int $contentObjectVersion
      * @param int $authorID 
      * @param array $approverIDArray
+     * @param int $type
+     * @param string message
      * @return eZCollaborationItem
      */
-    static function createApproval( $contentObjectID, $contentObjectVersion, $authorID, $approverIDArray )
+    static function createApproval( $contentObjectID, $contentObjectVersion, $authorID, $approverIDArray, $type, $message )
     {
         $collaborationItem = eZCollaborationItemTanta::create( 'ezapprovetanta', $authorID );
         $collaborationItem->setAttribute( 'data_int1', $contentObjectID );
