@@ -176,18 +176,21 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
         return false;
     }
 
-    /*!
-     Creates a new approval collaboration item which will approve the content object \a $contentObjectID
-     with version \a $contentObjectVersion.
-     The item will be added to the author \a $authorID and the approver array \a $approverIDArray.
-     \return the collaboration item.
-    */
+    /**
+     * Creates a new approval collaboration item for the content object and the version
+     * The item will be added to the author and the approver array.
+     *
+     * @param int $contentObjectID
+     * @param int $contentObjectVersion
+     * @param int $authorID 
+     * @param array $approverIDArray
+     * @return eZCollaborationItem
+     */
     static function createApproval( $contentObjectID, $contentObjectVersion, $authorID, $approverIDArray )
     {
-        $collaborationItem = eZCollaborationItem::create( 'ezapprovetanta', $authorID );
+        $collaborationItem = eZCollaborationItemTanta::create( 'ezapprovetanta', $authorID );
         $collaborationItem->setAttribute( 'data_int1', $contentObjectID );
         $collaborationItem->setAttribute( 'data_int2', $contentObjectVersion );
-        $collaborationItem->setAttribute( 'data_int3', false );
         $collaborationItem->store();
         $collaborationID = $collaborationItem->attribute( 'id' );
 
@@ -211,7 +214,8 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
         }
 
         // Create the notification
-        $collaborationItem->createNotificationEvent();
+        $event = $collaborationItem->createNotificationEvent( false, $type, $message );
+        
         return $collaborationItem;
     }
 
@@ -280,6 +284,9 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
                 $message = eZCollaborationSimpleMessage::create( 'ezapprovetanta_comment', $messageText );
                 $message->store();
                 eZCollaborationItemMessageLink::addMessage( $collaborationItem, $message, self::MESSAGE_TYPE_APPROVE );
+                // create notification event with type 1 (there is a comment only )
+                $collaborationitemtanta = new eZCollaborationItemTanta();
+                $event = $collaborationitemtanta->createNotificationEvent( $collaborationItem, false, 1, $messageText );
             }
         }
         $collaborationItem->sync();
