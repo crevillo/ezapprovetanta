@@ -84,7 +84,7 @@
 {* DESIGN: Control bar START *}<div class="box-bc"><div class="box-ml">
 
 <input type="hidden" name="CollaborationActionCustom" value="custom" />
-<input type="hidden" name="CollaborationTypeIdentifier" value="ezapprove" />
+<input type="hidden" name="CollaborationTypeIdentifier" value="ezapprovetanta" />
 
 <input type="hidden" name="CollaborationItemID" value="{$collab_item.id}" />
 
