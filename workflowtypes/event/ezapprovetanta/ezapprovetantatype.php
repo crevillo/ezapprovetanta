@@ -615,7 +615,7 @@ class eZApproveTantaType extends eZWorkflowEventType
         if ( $editors === null )
             return false;
         $authorID = $userID;
-        $collaborationItem = eZApproveCollaborationHandler::createApproval( $contentobjectID, $contentobjectVersion,
+        $collaborationItem = eZApproveTantaCollaborationHandler::createApproval( $contentobjectID, $contentobjectVersion,
                                                                             $authorID, $editors );
         $db = eZDb::instance();
         $db->query( 'INSERT INTO ezapprove_items( workflow_process_id, collaboration_id )
