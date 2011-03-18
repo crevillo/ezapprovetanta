@@ -53,7 +53,7 @@ class eZApproveTantaType extends eZWorkflowEventType
 
     function eZApproveTantaType()
     {
-        $this->eZWorkflowEventType( eZApproveTantaType::WORKFLOW_TYPE_STRING, ezpI18n::tr( 'kernel/workflow/event', "Approve" ) );
+        $this->eZWorkflowEventType( eZApproveTantaType::WORKFLOW_TYPE_STRING, ezpI18n::tr( 'kernel/workflow/event', "Tanta Approve" ) );
         $this->setTriggerTypes( array( 'content' => array( 'publish' => array( 'before' ) ) ) );
     }
 
