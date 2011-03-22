@@ -1,44 +1,13 @@
 <?php
-//
-// Definition of eZApproveType class
-//
-// Created on: <16-Apr-2002 11:08:14 amos>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish
-// SOFTWARE RELEASE: 4.1.x
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-//
-//   This program is distributed in the hope that it will be useful,
-//   but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-//
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-//
-//
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-/*!
-  \class eZApproveTantaType ezapprovetype.php
-  \brief Event type for user approvals
-
-  WorkflowEvent storage fields : data_text1 - selected_sections
-                                 data_text2 - selected_usergroups
-                                 data_text3 - approve_users
-                                 data_text4 - approve_groups
-                                 data_int2  - language_list
-                                 data_int3  - content object version option
-*/
+/**
+ * File containing the eZApproveTantaType class. 
+ *
+ * @copyright <CopyrightString>
+ * @license <LicenseString>
+ * @version <VersionString>
+ * @package <Package>
+ * @subpackage <SubPackage>
+ */
 
 class eZApproveTantaType extends eZWorkflowEventType
 {

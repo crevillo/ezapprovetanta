@@ -70,7 +70,7 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
                                            ezpI18n::tr( 'kernel/classes', 'Tanta Approval' ),
                                            array( 'use-messages' => true,
                                                   'notification-types' => true,
-                                                  'notification-collection-handling' => eZCollaborationItemHandler::NOTIFICATION_COLLECTION_PER_PARTICIPATION_ROLE ) );
+                                                  'notification-collection-handling' => eZCollaborationItemHandler::NOTIFICATION_COLLECTION_PER_USER ) );
     }
 
     function title( $collaborationItem )
@@ -89,11 +89,11 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
     {
         if ( $participantRole == eZCollaborationItemParticipantLink::ROLE_APPROVER )
         {
-            return 'approve.tpl';
+            return 'approve'; // we add the .tpl suffix after. we need to add the template type previously
         }
         else if ( $participantRole == eZCollaborationItemParticipantLink::ROLE_AUTHOR )
         {
-            return 'author.tpl';
+            return 'author';
         }
         else
             return false;
@@ -303,7 +303,6 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
         $participantList = eZCollaborationItemParticipantLink::fetchParticipantList( array( 'item_id' => $item->attribute( 'id' ),
                                                                                              'participant_type' => eZCollaborationItemParticipantLink::TYPE_USER,
                                                                                              'as_object' => false ) );
-        print_r( $participantList );
         $userIDList = array();
         $participantMap = array();
         
@@ -394,7 +393,11 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
                 $typeIdentifier = $itemInfo['type-identifier'];
                 $tpl->setVariable( 'collaboration_item', $item );
                 $tpl->setVariable( 'collaboration_participant_role', $participantRole );
-                $result = $tpl->fetch( 'design:notification/handler/ezcollaborationtanta/view/' . $typeIdentifier . '/' . $templateName . '_' );
+                // check the event type (new, commented, approved, rejected) and it to the templateString value. 
+                // there will be one template for each posibility';
+                $templateType = $event->attribute( 'data_int2' );                            
+                $result = $tpl->fetch( 'design:notification/handler/ezcollaborationtanta/view/' . $typeIdentifier . '/' . $templateName . '_' . $templateType . '.tpl' );
+               
                 $subject = $tpl->variable( 'subject' );
                 if ( $tpl->hasVariable( 'message_id' ) )
                     $parameters['message_id'] = $tpl->variable( 'message_id' );
@@ -414,7 +417,6 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
                 $collection->setAttribute( 'data_subject', $subject );
                 $collection->setAttribute( 'data_text', $result );
                 $collection->store();
-                print_r( $collection );
                
                 foreach ( $collectionItems as $collectionItem )
                 {
@@ -425,6 +427,7 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
         }
         else if ( $collectionHandling == self::NOTIFICATION_COLLECTION_PER_USER )
         {
+            // @todo. 
         }
         else
         {

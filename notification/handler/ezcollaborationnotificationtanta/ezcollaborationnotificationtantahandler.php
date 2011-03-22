@@ -14,8 +14,7 @@ class eZCollaborationNotificationTantaHandler extends eZCollaborationNotificatio
     }    
 
     function handle( $event )
-    {
-        die( 'xxx' );
+    {       
         eZDebugSetting::writeDebug( 'kernel-notification', $event, "trying to handle event" );
         if ( $event->attribute( 'event_type_string' ) == self::NOTIFICATION_HANDLER_ID )
         {
@@ -32,12 +31,10 @@ class eZCollaborationNotificationTantaHandler extends eZCollaborationNotificatio
 
     function handleCollaborationEvent( $event, &$parameters )
     {
-        die( 'this way' );
         $collaborationItem = $event->attribute( 'content' );
         if ( !$collaborationItem )
             return eZNotificationEventHandler::EVENT_SKIPPED;
         $collaborationHandler = $collaborationItem->attribute( 'handler' );
-        die( $collaborationHandler );
         return $collaborationHandler->handleCollaborationEvent( $event, $collaborationItem, $parameters );
     }   
 }
