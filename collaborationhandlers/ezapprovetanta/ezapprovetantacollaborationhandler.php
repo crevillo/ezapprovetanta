@@ -190,6 +190,7 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
      */
     static function createApproval( $contentObjectID, $contentObjectVersion, $authorID, $approverIDArray, $type = 0, $message = '' )
     {
+       
         $collaborationItem = eZCollaborationItem::create( 'ezapprovetanta', $authorID );
         $collaborationItem->setAttribute( 'data_int1', $contentObjectID );
         $collaborationItem->setAttribute( 'data_int2', $contentObjectVersion );
@@ -216,7 +217,7 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
         }
 
         // Create the notification
-        $collaborationitemtanta = new eZCollaborationItemTanta();
+        $collaborationitemtanta = new eZCollaborationItemTanta();      
         $event = $collaborationitemtanta->createNotificationEvent( $collaborationItem, false, 1, $messageText );
         
         return $collaborationItem;
