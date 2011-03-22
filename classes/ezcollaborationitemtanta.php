@@ -1,4 +1,14 @@
-<?php 
+<?php
+/**
+ * File containing the eZCollaborationItemTanta class. 
+ *
+ * @copyright <CopyrightString>
+ * @license <LicenseString>
+ * @version <VersionString>
+ * @package <Package>
+ * @subpackage <SubPackage>
+ */
+
 class eZCollaborationItemTanta
 {
     function createNotificationEvent( $collaborationItem, $subType = false, $messagetype = 0, $messagetext = '' )

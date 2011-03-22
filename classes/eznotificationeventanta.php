@@ -1,4 +1,13 @@
 <?php 
+/**
+ * File containing the eZNotificationEventTanta class. 
+ *
+ * @copyright <CopyrightString>
+ * @license <LicenseString>
+ * @version <VersionString>
+ * @package <Package>
+ * @subpackage <SubPackage>
+ */
 
 class eZNotificationEventTanta extends eZNotificationEvent
 {
