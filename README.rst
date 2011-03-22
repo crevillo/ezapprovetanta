@@ -11,8 +11,7 @@ It's heavily based on provided functionality by eZ Publish, but it adds..
 
 - a workflow: just to add distinct identifier to the collaboration items created
 
-- a custom collaboration handler: for adding notification events also when a collab
-item is commented, approved or rejected
+- a custom collaboration handler: for adding notification events also when a collab item is commented, approved or rejected
 
 - a custon notification event:
 
