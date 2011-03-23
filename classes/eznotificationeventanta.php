@@ -3,9 +3,8 @@
  * File containing the eZNotificationEventTanta class
  * 
  * It extends provided eZNotificationEvent adding more info in each record of the table
- * This info will determine template used in each email and also decide if an email should
- * be sent to a specific user or not. For example, probably we don't need to email the approver
- * telling that he has approved something.
+ * This info will determine template used in each email allowing to personalize the email body
+ * depending on receiver is creator of the notification event or not. 
  *
  * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
  * @license http://ez.no/licenses/gnu_gpl GNU GPLv2
