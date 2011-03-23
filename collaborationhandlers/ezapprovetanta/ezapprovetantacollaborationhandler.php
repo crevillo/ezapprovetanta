@@ -1,69 +1,32 @@
 <?php
-//
-// Definition of eZApproveCollaborationHandler class
-//
-// Created on: <23-Jan-2003 11:57:11 amos>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish
-// SOFTWARE RELEASE: 4.1.x
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-//
-//   This program is distributed in the hope that it will be useful,
-//   but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-//
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-//
-//
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-/*! \file
-*/
-
-/*!
-  \class eZApproveCollaborationHandler ezapprovetantacollaborationhandler.php
-  \brief Handles approval communication using the collaboration system
-
-  The handler uses the fields data_int1, data_int2 and data_int3 to store
-  information on the contentobject and the approval status.
-
-  - data_int1 - The content object ID
-  - data_int2 - The content object version
-  - data_int3 - The status of the approval, see defines.
-
-*/
+/**
+ * File containing the eZApproveTantaCollaborationHandler class. 
+ *
+ * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
+ * @license http://ez.no/licenses/gnu_gpl GNU GPLv2
+ */
 
 class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
 {
-    /// Approval message type
+    // Approval message type
     const MESSAGE_TYPE_APPROVE = 1;
 
-    /// Default status, no approval decision has been made
+    // Default status, no approval decision has been made
     const STATUS_WAITING = 0;
 
-    /// The contentobject was approved and will be published.
+    // The contentobject was approved and will be published.
     const STATUS_ACCEPTED = 1;
 
-    /// The contentobject was denied and will be archived.
+    // The contentobject was denied and will be archived.
     const STATUS_DENIED = 2;
 
-    /// The contentobject was deferred and will be a draft again for reediting.
+    // The contentobject was deferred and will be a draft again for reediting.
     const STATUS_DEFERRED = 3;
 
-    /*!
-     Initializes the handler
-    */
+    /**
+     * Initializes the handler
+     * 
+     */
     function eZApproveTantaCollaborationHandler()
     {
         $this->eZCollaborationItemHandler( 'ezapprovetanta',
@@ -73,11 +36,23 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
                                                   'notification-collection-handling' => eZCollaborationItemHandler::NOTIFICATION_COLLECTION_PER_USER ) );
     }
 
+    /**
+     * Returns title of the collaboration handler
+     * 
+     * @param eZCollaborationItem $collaborationItem
+     * @return string
+     */
     function title( $collaborationItem )
     {
         return ezpI18n::tr( 'kernel/classes', 'Approval' );
     }
 
+    /**
+     * Returns some info about the collaboration item
+     * 
+     * @param eZCollaborationItem $collaborationItem
+     * @return array
+     */
     function content( $collaborationItem )
     {
         return array( "content_object_id" => $collaborationItem->attribute( "data_int1" ),
@@ -85,23 +60,12 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
                       "approval_status" => $collaborationItem->attribute( "data_int3" ) );
     }
 
-    function notificationParticipantTemplate( $participantRole )
-    {
-        if ( $participantRole == eZCollaborationItemParticipantLink::ROLE_APPROVER )
-        {
-            return 'approve'; // we add the .tpl suffix after. we need to add the template type previously
-        }
-        else if ( $participantRole == eZCollaborationItemParticipantLink::ROLE_AUTHOR )
-        {
-            return 'author';
-        }
-        else
-            return false;
-    }
-
-    /*!
-     \return the content object version object for the collaboration item \a $collaborationItem
-    */
+    /**
+     * Returns the content object version object for the collaboration item
+     * 
+     * @param eZCollaborationItem $collaborationItem
+     * @return eZContentObjectVersion
+     */
     static function contentObjectVersion( $collaborationItem )
     {
         $contentObjectID = $collaborationItem->contentAttribute( 'content_object_id' );
@@ -109,25 +73,34 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
         return eZContentObjectVersion::fetchVersion( $contentObjectVersion, $contentObjectID );
     }
 
-    /*!
-     Updates the last_read for the participant link.
-    */
+    /**
+     * Updates the last_read for the participant link.
+     * 
+     * @param eZCollaborationItem $collaborationItem
+     * @param bool $viewMode
+     */
     function readItem( $collaborationItem, $viewMode = false )
     {
         $collaborationItem->setLastRead();
     }
 
-    /*!
-     \return the number of messages for the approve item.
-    */
+    /**
+     * Returns the number of messages for the collaboration item.
+     * 
+     * @param eZCollaborationItem $collaborationItem
+     * @return int
+     */
     function messageCount( $collaborationItem )
     {
         return eZCollaborationItemMessageLink::fetchItemCount( array( 'item_id' => $collaborationItem->attribute( 'id' ) ) );
     }
 
-    /*!
-     \return the number of unread messages for the approve item.
-    */
+    /**
+     * Returns the number of unread messages for the collaboration item.
+     * 
+     * @param eZCollaborationItem $collaborationItem
+     * @return int
+     */
     function unreadMessageCount( $collaborationItem )
     {
         $lastRead = 0;
@@ -138,10 +111,12 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
                                                                       'conditions' => array( 'modified' => array( '>', $lastRead ) ) ) );
     }
 
-    /*!
-     \static
-     \return the status of the approval collaboration item \a $approvalID.
-    */
+    /**
+     * Returns the status of the approval collaboration item
+     * 
+     * @param int $approvalID
+     * @return bool
+     */
     static function checkApproval( $approvalID )
     {
         $collaborationItem = eZCollaborationItem::fetch( $approvalID );
@@ -152,10 +127,13 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
         return false;
     }
 
-    /*!
-     \static
-     \return makes sure the approval item is activated for all participants \a $approvalID.
-    */
+    /**
+     * Makes sure the approval item is activated for all participants 
+     * 
+     * @param int $approvalID
+     * @return bool
+     * 
+     */
     static function activateApproval( $approvalID )
     {
         $collaborationItem = eZCollaborationItem::fetch( $approvalID );
@@ -223,9 +201,12 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
         return $collaborationItem;
     }
 
-    /*!
-     Adds a new comment, approves the item or denies the item.
-    */
+    /**
+     * Adds a new comment, approves the item or denies the item.
+     *
+     * @param eZModule $module
+     * @param eZCollaborationItem $collaborationItem
+     */
     function handleCustomAction( $module, $collaborationItem )
     {
         $redirectView = 'item';
@@ -427,7 +408,9 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
         }
         else if ( $collectionHandling == self::NOTIFICATION_COLLECTION_PER_USER )
         {
-            // @todo. 
+            // @todo.
+            print_r( $userIDList );
+            die();
         }
         else
         {
