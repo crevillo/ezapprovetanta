@@ -308,14 +308,13 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
                                                                                              'as_object' => false ) );
         $userIDList = array();
         $participantMap = array();
-        
+
         foreach ( $participantList as $participant )
         {
             $userIDList[] = $participant['participant_id'];
             $participantMap[$participant['participant_id']] = $participant;
         }
-        
-        
+
         $collaborationIdentifier = $event->attribute( 'data_text1' );
         $ruleList = eZCollaborationNotificationRule::fetchItemTypeList( $collaborationIdentifier, $userIDList, false );
         $userIDList = array();
@@ -350,7 +349,7 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
         {
 
             $userCollection = array();
-            
+
             foreach( $userList as $subscriber )
             {
                 $contentObjectID = $subscriber['contentobject_id'];
@@ -362,16 +361,16 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
                     $userCollection[$participantRole] = array();
                 $userCollection[$participantRole][] = $userItem;
             }
-            
+
             // get notification event type 
             $notificationType = $event->attribute( 'data_int2' );
-            
+
             // get creator of the notification event
             $notificationCreator = $event->attribute( 'data_int3' );
 
             // get message text
             $notificationMessage = $event->attribute( 'data_text2' );
-            
+
             $tpl = eZTemplate::factory();
             $tpl->resetVariables();
             switch ( $notificationType )
