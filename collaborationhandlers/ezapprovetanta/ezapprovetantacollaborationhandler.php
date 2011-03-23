@@ -278,6 +278,28 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
         return $module->redirectToView( $redirectView, $redirectParameters );
     }
 
+    /**
+     * Handles the Collaboration Event. 
+     * Chooses what template the use depending on the notification event type 
+     * (new collaboration item, item commented, item rejected or approved) 
+     *
+     * In some cases, there's no need to notify the user. For example, if a user is approving something, 
+     * there's no need to notify it by email. 
+     * @todo make this customizable
+     *
+     * We'll have following options
+     *  Type = 0, meaning a new collaboration item is created, well work just default eZ Publish 
+     *            collaboration does. will use same templates also. 
+     *
+     *  Type = 1, 2, 3, meaning a collaboration item is commented (1), approved (2), rejected (3): 
+     *                  - An email will be sent to the creator of the item
+     *                  - Another one will one for all the participants (approvers) except the one commenting 
+     *                
+     *
+     * @param eZNotificationEvent $event
+     * @param eZCollaborationItem $item
+     * @param array $parameters
+     */    
     static function handleCollaborationEvent( $event, $item, &$parameters )
     {
         
@@ -318,38 +340,17 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
         $db->begin();
         if ( $collectionHandling == self::NOTIFICATION_COLLECTION_ONE_FOR_ALL )
         {
-            $tpl = eZTemplate::factory();
-            $tpl->resetVariables();
-            $tpl->setVariable( 'collaboration_item', $item );
-            $result = $tpl->fetch( 'design:notification/handler/ezcollaboration/view/plain.tpl' );
-            $subject = $tpl->variable( 'subject' );
-            if ( $tpl->hasVariable( 'message_id' ) )
-                $parameters['message_id'] = $tpl->variable( 'message_id' );
-            if ( $tpl->hasVariable( 'references' ) )
-                $parameters['references'] = $tpl->variable( 'references' );
-            if ( $tpl->hasVariable( 'reply_to' ) )
-                $parameters['reply_to'] = $tpl->variable( 'reply_to' );
-            if ( $tpl->hasVariable( 'from' ) )
-                $parameters['from'] = $tpl->variable( 'from' );
-            if ( $tpl->hasVariable( 'content_type' ) )
-                $parameters['content_type'] = $tpl->variable( 'content_type' );
-
-            $collection = eZNotificationCollection::create( $event->attribute( 'id' ),
-                                                            eZCollaborationNotificationHandler::NOTIFICATION_HANDLER_ID,
-                                                            eZCollaborationNotificationHandler::TRANSPORT );
-
-            $collection->setAttribute( 'data_subject', $subject );
-            $collection->setAttribute( 'data_text', $result );
-            $collection->store();
-            
-            foreach( $userList as $subscriber )
-            {
-                $collection->addItem( $subscriber['email'] );
-            }
+            // @TODO
         }
         else if ( $collectionHandling == self::NOTIFICATION_COLLECTION_PER_PARTICIPATION_ROLE )
         {
+            // @TODO
+        }
+        else if ( $collectionHandling == self::NOTIFICATION_COLLECTION_PER_USER )
+        {
+
             $userCollection = array();
+            
             foreach( $userList as $subscriber )
             {
                 $contentObjectID = $subscriber['contentobject_id'];
@@ -361,56 +362,97 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
                     $userCollection[$participantRole] = array();
                 $userCollection[$participantRole][] = $userItem;
             }
+            
+            // get notification event type 
+            $notificationType = $event->attribute( 'data_int2' );
+            
+            // get creator of the notification event
+            $notificationCreator = $event->attribute( 'data_int3' );
 
+            // get message text
+            $notificationMessage = $event->attribute( 'data_text2' );
+            
             $tpl = eZTemplate::factory();
             $tpl->resetVariables();
-            foreach( $userCollection as $participantRole => $collectionItems )
+            switch ( $notificationType )
             {
-                $templateName = $itemHandler->notificationParticipantTemplate( $participantRole );
-                if ( !$templateName )
-                    $templateName = eZCollaborationItemHandler::notificationParticipantTemplate( $participantRole );
-
-                $itemInfo = $itemHandler->attribute( 'info' );
-                $typeIdentifier = $itemInfo['type-identifier'];
-                $tpl->setVariable( 'collaboration_item', $item );
-                $tpl->setVariable( 'collaboration_participant_role', $participantRole );
-                // check the event type (new, commented, approved, rejected) and it to the templateString value. 
-                // there will be one template for each posibility';
-                $templateType = $event->attribute( 'data_int2' );                            
-                $result = $tpl->fetch( 'design:notification/handler/ezcollaborationtanta/view/' . $typeIdentifier . '/' . $templateName . '_' . $templateType . '.tpl' );
-               
-                $subject = $tpl->variable( 'subject' );
-                if ( $tpl->hasVariable( 'message_id' ) )
-                    $parameters['message_id'] = $tpl->variable( 'message_id' );
-                if ( $tpl->hasVariable( 'references' ) )
-                    $parameters['references'] = $tpl->variable( 'references' );
-                if ( $tpl->hasVariable( 'reply_to' ) )
-                    $parameters['reply_to'] = $tpl->variable( 'reply_to' );
-                if ( $tpl->hasVariable( 'from' ) )
-                    $parameters['from'] = $tpl->variable( 'from' );
-                if ( $tpl->hasVariable( 'content_type' ) )
-                    $parameters['content_type'] = $tpl->variable( 'content_type' );
-
-                $collection = eZNotificationCollection::create( $event->attribute( 'id' ),
-                                                                eZCollaborationNotificationHandler::NOTIFICATION_HANDLER_ID,
-                                                                eZCollaborationNotificationHandler::TRANSPORT );
-
-                $collection->setAttribute( 'data_subject', $subject );
-                $collection->setAttribute( 'data_text', $result );
-                $collection->store();
-               
-                foreach ( $collectionItems as $collectionItem )
+                case 0:
                 {
-                    $collection->addItem( $collectionItem['email'] );
-                }
-                 
+                    // work just like the default one, except for the template location. 
+                    foreach( $userCollection as $participantRole => $collectionItems )
+                    {
+                        $templateName = $itemHandler->notificationParticipantTemplate( $participantRole );
+                        if ( !$templateName )
+                            $templateName = eZCollaborationItemHandler::notificationParticipantTemplate( $participantRole );
+                        $itemInfo = $itemHandler->attribute( 'info' );
+                        $typeIdentifier = $itemInfo['type-identifier'];
+                        $tpl->setVariable( 'collaboration_item', $item );
+                        $tpl->setVariable( 'collaboration_participant_role', $participantRole );
+                        $result = $tpl->fetch( 'design:notification/handler/ezcollaborationtanta/view/' . $typeIdentifier . '/' . $templateName );
+                        $subject = $tpl->variable( 'subject' );
+                        if ( $tpl->hasVariable( 'message_id' ) )
+                            $parameters['message_id'] = $tpl->variable( 'message_id' );
+                        if ( $tpl->hasVariable( 'references' ) )
+                            $parameters['references'] = $tpl->variable( 'references' );
+                        if ( $tpl->hasVariable( 'reply_to' ) )
+                            $parameters['reply_to'] = $tpl->variable( 'reply_to' );
+                        if ( $tpl->hasVariable( 'from' ) )
+                            $parameters['from'] = $tpl->variable( 'from' );
+                        if ( $tpl->hasVariable( 'content_type' ) )
+                            $parameters['content_type'] = $tpl->variable( 'content_type' );
+
+                        $collection = eZNotificationCollection::create( $event->attribute( 'id' ), eZCollaborationNotificationHandler::NOTIFICATION_HANDLER_ID, eZCollaborationNotificationHandler::TRANSPORT );
+
+                        $collection->setAttribute( 'data_subject', $subject );
+                        $collection->setAttribute( 'data_text', $result );
+                        $collection->store();
+                        foreach ( $collectionItems as $collectionItem )
+                        {
+                            $collection->addItem( $collectionItem['email'] );
+                        }
+                    }
+                }break;
+
+                case 1:
+                {
+                    foreach( $userCollection as $participantRole => $collectionItems )
+                    {
+                        $templateName = $itemHandler->notificationParticipantTemplate( $participantRole );
+                        if ( !$templateName )
+                            $templateName = self::notificationParticipantTemplateForEvent( $participantRole, $event );
+                        $itemInfo = $itemHandler->attribute( 'info' );
+                        $typeIdentifier = $itemInfo['type-identifier'];
+                        $tpl->setVariable( 'collaboration_item', $item );
+                        $tpl->setVariable( 'collaboration_participant_role', $participantRole );
+                        $result = $tpl->fetch( 'design:notification/handler/ezcollaborationtanta/view/' . $typeIdentifier . '/' . $templateName );
+                        $subject = $tpl->variable( 'subject' );
+                        if ( $tpl->hasVariable( 'message_id' ) )
+                            $parameters['message_id'] = $tpl->variable( 'message_id' );
+                        if ( $tpl->hasVariable( 'references' ) )
+                            $parameters['references'] = $tpl->variable( 'references' );
+                        if ( $tpl->hasVariable( 'reply_to' ) )
+                            $parameters['reply_to'] = $tpl->variable( 'reply_to' );
+                        if ( $tpl->hasVariable( 'from' ) )
+                            $parameters['from'] = $tpl->variable( 'from' );
+                        if ( $tpl->hasVariable( 'content_type' ) )
+                            $parameters['content_type'] = $tpl->variable( 'content_type' );
+
+                        $collection = eZNotificationCollection::create( $event->attribute( 'id' ), eZCollaborationNotificationHandler::NOTIFICATION_HANDLER_ID, eZCollaborationNotificationHandler::TRANSPORT );
+
+                        $collection->setAttribute( 'data_subject', $subject );
+                        $collection->setAttribute( 'data_text', $result );
+                        $collection->store();
+                        foreach ( $collectionItems as $collectionItem )
+                        {
+                            // only send mail to the rest of the participants. not to the creator.
+                            if( $collectionItem['participant']['participant_id'] != $notificationCreator )
+                                $collection->addItem( $collectionItem['email'] );                            
+                        }
+                    }
+                   
+                }break;
             }
-        }
-        else if ( $collectionHandling == self::NOTIFICATION_COLLECTION_PER_USER )
-        {
-            // @todo.
-            print_r( $userIDList );
-            die();
+            
         }
         else
         {
