@@ -60,6 +60,19 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
                       "approval_status" => $collaborationItem->attribute( "data_int3" ) );
     }
 
+    function notificationParticipantTemplateType( $participantRole, $type )
+    {
+        if ( $participantRole == eZCollaborationItemParticipantLink::ROLE_APPROVER )
+        {
+            return 'approve_' . $type .'.tpl';
+        }
+        else if ( $participantRole == eZCollaborationItemParticipantLink::ROLE_AUTHOR )
+        {
+            return 'author_' . $type .'.tpl';
+        }
+        else
+            return false;
+    }
     /**
      * Returns the content object version object for the collaboration item
      * 
@@ -132,7 +145,6 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
      * 
      * @param int $approvalID
      * @return bool
-     * 
      */
     static function activateApproval( $approvalID )
     {
@@ -299,13 +311,13 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
      * @param eZNotificationEvent $event
      * @param eZCollaborationItem $item
      * @param array $parameters
-     */    
+     */
     static function handleCollaborationEvent( $event, $item, &$parameters )
     {
         
         $participantList = eZCollaborationItemParticipantLink::fetchParticipantList( array( 'item_id' => $item->attribute( 'id' ),
-                                                                                             'participant_type' => eZCollaborationItemParticipantLink::TYPE_USER,
-                                                                                             'as_object' => false ) );
+                                                                                            'participant_type' => eZCollaborationItemParticipantLink::TYPE_USER,
+                                                                                            'as_object' => false ) );
         $userIDList = array();
         $participantMap = array();
 
@@ -382,7 +394,7 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
                     {
                         $templateName = $itemHandler->notificationParticipantTemplate( $participantRole );
                         if ( !$templateName )
-                            $templateName = eZCollaborationItemHandler::notificationParticipantTemplate( $participantRole );
+                            $templateName = eZCollaborationItemHandler::notificationParticipantTemplateType( $participantRole, $notificationType );
                         $itemInfo = $itemHandler->attribute( 'info' );
                         $typeIdentifier = $itemInfo['type-identifier'];
                         $tpl->setVariable( 'collaboration_item', $item );
@@ -416,7 +428,7 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
                 {
                     foreach( $userCollection as $participantRole => $collectionItems )
                     {
-                        $templateName = $itemHandler->notificationParticipantTemplate( $participantRole );
+                        $templateName = $itemHandler->notificationParticipantTemplateType( $participantRole, $event );
                         if ( !$templateName )
                             $templateName = self::notificationParticipantTemplateForEvent( $participantRole, $event );
                         $itemInfo = $itemHandler->attribute( 'info' );
