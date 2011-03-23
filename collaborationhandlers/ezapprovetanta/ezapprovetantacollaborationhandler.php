@@ -428,49 +428,49 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
                 {
                     foreach( $userCollection as $participantRole => $collectionItems )
                     {
-                        $templateName = $itemHandler->notificationParticipantTemplateType( $participantRole, $event );
-                        if ( !$templateName )
-                            $templateName = self::notificationParticipantTemplateForEvent( $participantRole, $event );
-                        $itemInfo = $itemHandler->attribute( 'info' );
-                        $typeIdentifier = $itemInfo['type-identifier'];
-                        $tpl->setVariable( 'collaboration_item', $item );
-                        $tpl->setVariable( 'collaboration_participant_role', $participantRole );
-                        $result = $tpl->fetch( 'design:notification/handler/ezcollaborationtanta/view/' . $typeIdentifier . '/' . $templateName );
-                        $subject = $tpl->variable( 'subject' );
-                        if ( $tpl->hasVariable( 'message_id' ) )
-                            $parameters['message_id'] = $tpl->variable( 'message_id' );
-                        if ( $tpl->hasVariable( 'references' ) )
-                            $parameters['references'] = $tpl->variable( 'references' );
-                        if ( $tpl->hasVariable( 'reply_to' ) )
-                            $parameters['reply_to'] = $tpl->variable( 'reply_to' );
-                        if ( $tpl->hasVariable( 'from' ) )
-                            $parameters['from'] = $tpl->variable( 'from' );
-                        if ( $tpl->hasVariable( 'content_type' ) )
-                            $parameters['content_type'] = $tpl->variable( 'content_type' );
-
-                        $collection = eZNotificationCollection::create( $event->attribute( 'id' ), eZCollaborationNotificationHandler::NOTIFICATION_HANDLER_ID, eZCollaborationNotificationHandler::TRANSPORT );
-
-                        $collection->setAttribute( 'data_subject', $subject );
-                        $collection->setAttribute( 'data_text', $result );
-                        $collection->store();
                         foreach ( $collectionItems as $collectionItem )
                         {
-                            // only send mail to the rest of the participants. not to the creator.
                             if( $collectionItem['participant']['participant_id'] != $notificationCreator )
-                                $collection->addItem( $collectionItem['email'] );                            
+                            {
+                                $templateName = $itemHandler->notificationParticipantTemplateType( $participantRole, $event );
+                                if ( !$templateName )
+                                    $templateName = self::notificationParticipantTemplateForEvent( $participantRole, $event );
+                                $itemInfo = $itemHandler->attribute( 'info' );
+                                $typeIdentifier = $itemInfo['type-identifier'];
+                                $tpl->setVariable( 'collaboration_item', $item );
+                                $tpl->setVariable( 'collaboration_participant_role', $participantRole );
+                                $result = $tpl->fetch( 'design:notification/handler/ezcollaborationtanta/view/' . $typeIdentifier . '/' . $templateName );
+                                $subject = $tpl->variable( 'subject' );
+                                if ( $tpl->hasVariable( 'message_id' ) )
+                                    $parameters['message_id'] = $tpl->variable( 'message_id' );
+                                if ( $tpl->hasVariable( 'references' ) )
+                                    $parameters['references'] = $tpl->variable( 'references' );
+                                if ( $tpl->hasVariable( 'reply_to' ) )
+                                    $parameters['reply_to'] = $tpl->variable( 'reply_to' );
+                                if ( $tpl->hasVariable( 'from' ) )
+                                    $parameters['from'] = $tpl->variable( 'from' );
+                                if ( $tpl->hasVariable( 'content_type' ) )
+                                    $parameters['content_type'] = $tpl->variable( 'content_type' );
+
+                                $collection = eZNotificationCollection::create( $event->attribute( 'id' ), eZCollaborationNotificationHandler::NOTIFICATION_HANDLER_ID, eZCollaborationNotificationHandler::TRANSPORT );
+
+                                $collection->setAttribute( 'data_subject', $subject );
+                                $collection->setAttribute( 'data_text', $result );
+                                $collection->store();
+
+                                $collection->addItem( $collectionItem['email'] );
+                            }
                         }
                     }
                    
                 }break;
             }
-            
         }
         else
         {
             eZDebug::writeError( "Unknown collaboration notification collection handling type '$collectionHandling', skipping notification", __METHOD__ );
         }
         $db->commit();
-      
 
         return eZNotificationEventHandler::EVENT_HANDLED;
     }
