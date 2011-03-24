@@ -395,10 +395,12 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
                         $templateName = $itemHandler->notificationParticipantTemplate( $participantRole );
                         if ( !$templateName )
                             $templateName = eZCollaborationItemHandler::notificationParticipantTemplateType( $participantRole, $notificationType );
+                            print $templateName . "\n";
                         $itemInfo = $itemHandler->attribute( 'info' );
                         $typeIdentifier = $itemInfo['type-identifier'];
                         $tpl->setVariable( 'collaboration_item', $item );
                         $tpl->setVariable( 'collaboration_participant_role', $participantRole );
+                        print 'design:notification/handler/ezcollaborationtanta/view/' . $typeIdentifier . '/' . $templateName;
                         $result = $tpl->fetch( 'design:notification/handler/ezcollaborationtanta/view/' . $typeIdentifier . '/' . $templateName );
                         $subject = $tpl->variable( 'subject' );
                         if ( $tpl->hasVariable( 'message_id' ) )
