@@ -2,13 +2,13 @@
      objectversion=fetch( content, version,
                           hash( object_id, $approval_content.content_object_id,
                                 version_id, $approval_content.content_object_version ) )}
-{set-block scope=root variable=subject}{'[%sitename] Approval of "%objectname" awaits your attention'
+{set-block scope=root variable=subject}{'[%sitename] "%objectname" awaits approval'
                                         |i18n( "design/standard/collaboration/approval",,
                                                hash( '%sitename', ezini( "SiteSettings", "SiteURL" ),
                                                      '%objectname', $objectversion.version_name|wash ) )}{/set-block}
-{'This email is to inform you that "%objectname" awaits your attention at %sitename.
-The publishing process has been halted and it is up to you to decide if it should continue or stop.
-The approval can be viewed by using the URL below.'
+Este mail va para el creador del objeto cuando se produce un comentario
+{'This email is to inform you that "%objectname" awaits approval at %sitename before it can be published.
+If you want to send comments to the approver or view the status use the URL below.'
  |i18n( 'design/standard/collaboration/approval',,
         hash( '%sitename', ezini( "SiteSettings", "SiteURL" ),
               '%objectname', $objectversion.version_name|wash ) )}
