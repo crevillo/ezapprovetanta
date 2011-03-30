@@ -272,6 +272,10 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
             $redirectView = 'view';
             $redirectParameters = array( 'summary' );
             $addComment = true;
+            $messageText = $this->customInput( 'ApproveComment' );
+            $collaborationitemtanta = new eZCollaborationItemTanta();
+            $msgtype = $this->isCustomAction( 'Accept' ) ? 2 : 3;
+            $event = $collaborationitemtanta->createNotificationEvent( $collaborationItem, false, $msgtype, $messageText );
         }
         if ( $addComment )
         {
@@ -385,6 +389,16 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
 
             $tpl = eZTemplate::factory();
             $tpl->resetVariables();
+
+            if ( $creator = eZUser::fetch( $notificationCreator ) )
+            {
+				$tpl->setVariable( 'notification_creator', $creator );		
+				$creatorID = $creator->attribute( 'contentobject_id' );
+				if ( $creatorObject = eZContentObject::fetch( $creatorID ) )
+					$tpl->setVariable( 'notification_creator_object', $creatorObject );
+            }
+            
+            
             switch ( $notificationType )
             {
                 case 0:
@@ -392,15 +406,16 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
                     // work just like the default one, except for the template location. 
                     foreach( $userCollection as $participantRole => $collectionItems )
                     {
-                        $templateName = $itemHandler->notificationParticipantTemplate( $participantRole );
+                        $templateName = $itemHandler->notificationParticipantTemplateType( $participantRole, $notificationType  );
                         if ( !$templateName )
                             $templateName = eZCollaborationItemHandler::notificationParticipantTemplateType( $participantRole, $notificationType );
-                            print $templateName . "\n";
+                            
                         $itemInfo = $itemHandler->attribute( 'info' );
                         $typeIdentifier = $itemInfo['type-identifier'];
                         $tpl->setVariable( 'collaboration_item', $item );
                         $tpl->setVariable( 'collaboration_participant_role', $participantRole );
-                        print 'design:notification/handler/ezcollaborationtanta/view/' . $typeIdentifier . '/' . $templateName;
+                        
+                       
                         $result = $tpl->fetch( 'design:notification/handler/ezcollaborationtanta/view/' . $typeIdentifier . '/' . $templateName );
                         $subject = $tpl->variable( 'subject' );
                         if ( $tpl->hasVariable( 'message_id' ) )
@@ -427,6 +442,8 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
                 }break;
 
                 case 1:
+                case 2:
+                case 3:
                 {
                     foreach( $userCollection as $participantRole => $collectionItems )
                     {
@@ -434,14 +451,16 @@ class eZApproveTantaCollaborationHandler extends eZCollaborationItemHandler
                         {
                             if( $collectionItem['participant']['participant_id'] != $notificationCreator )
                             {
-                                $templateName = $itemHandler->notificationParticipantTemplateType( $participantRole, $event );
+                                $templateName = $itemHandler->notificationParticipantTemplateType( $participantRole, $notificationType );
                                 if ( !$templateName )
-                                    $templateName = self::notificationParticipantTemplateForEvent( $participantRole, $event );
+                                    $templateName = self::notificationParticipantTemplateForEvent( $participantRole, $notificationType );
                                 $itemInfo = $itemHandler->attribute( 'info' );
                                 $typeIdentifier = $itemInfo['type-identifier'];
                                 $tpl->setVariable( 'collaboration_item', $item );
                                 $tpl->setVariable( 'collaboration_participant_role', $participantRole );
+                                $tpl->setVariable( 'message', $notificationMessage );
                                 $result = $tpl->fetch( 'design:notification/handler/ezcollaborationtanta/view/' . $typeIdentifier . '/' . $templateName );
+                               
                                 $subject = $tpl->variable( 'subject' );
                                 if ( $tpl->hasVariable( 'message_id' ) )
                                     $parameters['message_id'] = $tpl->variable( 'message_id' );
