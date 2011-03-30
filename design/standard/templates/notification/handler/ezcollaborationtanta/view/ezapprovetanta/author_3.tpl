@@ -2,9 +2,8 @@
      objectversion=fetch( content, version,
                           hash( object_id, $approval_content.content_object_id,
                                 version_id, $approval_content.content_object_version ) )}
-{set-block scope=root variable=subject}El contenido "{$objectversion.version_name|wash}" ha sido comentado{if $notification_creator_object} por "{$notification_creator_object.name|wash}"{/if}{/set-block}
-El contenido "{$objectversion.version_name|wash}" está pendiente de publicación porque tiene comentarios{if $notification_creator_object} de "{$notification_creator_object.name|wash}"{/if}, sigue esta dirección para consultarlos:
-http://{ezini( "SiteSettings", "SiteURL" )}{concat( "collaboration/item/full/", $collaboration_item.id )|ezurl( no )}
+{set-block scope=root variable=subject}El contenido "{$objectversion.version_name|wash}" no ha sido aceptado{/set-block}
+El contenido "{$objectversion.version_name|wash}" no ha sido aceptado{if $notification_creator_object} por "{$notification_creator_object.name|wash}"{/if}.
 
 {"If you do not want to continue receiving these notifications,
 change your settings at:"|i18n( 'design/standard/notification' )}
