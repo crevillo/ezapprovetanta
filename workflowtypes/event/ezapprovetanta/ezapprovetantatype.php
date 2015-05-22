@@ -36,6 +36,12 @@ class eZApproveTantaType extends eZWorkflowEventType
                 $returnValue = empty( $attributeValue ) ? array( -1 ) : explode( ',', $attributeValue );
             }break;
 
+            case 'selected_classes':
+            {
+                $attributeValue = trim($event->attribute('data_text5'));
+                $returnValue = empty($attributeValue) ? array( -1 ) : explode(',', $attributeValue);
+            }break;
+
             case 'approve_users':
             {
                 $attributeValue = trim( $event->attribute( 'data_text3' ) );
@@ -82,6 +88,7 @@ class eZApproveTantaType extends eZWorkflowEventType
     function typeFunctionalAttributes( )
     {
         return array( 'selected_sections',
+                      'selected_classes',
                       'approve_users',
                       'approve_groups',
                       'selected_usergroups',
@@ -93,6 +100,7 @@ class eZApproveTantaType extends eZWorkflowEventType
     {
         return array_merge( array( 'sections',
                                    'languages',
+                                   'contentclass_list',
                                    'users',
                                    'usergroups' ),
                             eZWorkflowEventType::attributes() );
@@ -117,11 +125,25 @@ class eZApproveTantaType extends eZWorkflowEventType
                     $sections[$key]['value'] = $section['id'];
                 }
                 return $sections;
-            }break;
+            }
+            break;
+            case 'contentclass_list':
+            {
+                $classes = eZContentClass::fetchList( eZContentClass::VERSION_STATUS_DEFINED, true, false, array( 'name' => 'asc' ) );
+                $classList = array();
+                for ( $i = 0; $i < count($classes); $i++ )
+                {
+                    $classList[$i]['Name']  = $classes[$i]->attribute('name');
+                    $classList[$i]['value'] = $classes[$i]->attribute('id');
+                }
+                return $classList;
+            }
+            break;
             case 'languages':
             {
                 return eZContentLanguage::fetchList();
-            }break;
+            }
+            break;
         }
         return eZWorkflowEventType::attribute( $attr );
     }
@@ -190,24 +212,28 @@ class eZApproveTantaType extends eZWorkflowEventType
             $user = eZUser::instance( $process->attribute( 'user_id' ) );
         }
 
-        $userGroups = array_merge( $user->attribute( 'groups' ), array( $user->attribute( 'contentobject_id' ) ) );
-        $workflowSections = explode( ',', $event->attribute( 'data_text1' ) );
-        $workflowGroups =   $event->attribute( 'data_text2' ) == '' ? array() : explode( ',', $event->attribute( 'data_text2' ) );
-        $editors =          $event->attribute( 'data_text3' ) == '' ? array() : explode( ',', $event->attribute( 'data_text3' ) );
-        $approveGroups =    $event->attribute( 'data_text4' ) == '' ? array() : explode( ',', $event->attribute( 'data_text4' ) );
-        $languageMask = $event->attribute( 'data_int2' );
+        $userGroups       = array_merge($user->attribute('groups'), array( $user->attribute('contentobject_id') ));
+        $workflowSections = explode(',', $event->attribute('data_text1'));
+        $workflowGroups   = $event->attribute('data_text2') == '' ? array() : explode(',', $event->attribute('data_text2'));
+        $workflowClasses  = explode(',', $event->attribute('data_text5'));
+        $editors          = $event->attribute('data_text3') == '' ? array() : explode(',', $event->attribute('data_text3'));
+        $approveGroups    = $event->attribute('data_text4') == '' ? array() : explode(',', $event->attribute('data_text4'));
+        $languageMask     = $event->attribute('data_int2');
 
-        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $user, 'eZApproveTantaType::execute::user' );
-        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $userGroups, 'eZApproveTantaType::execute::userGroups' );
-        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $editors, 'eZApproveTantaType::execute::editor' );
-        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $approveGroups, 'eZApproveTantaType::execute::approveGroups' );
-        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $workflowSections, 'eZApproveTantaType::execute::workflowSections' );
-        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $workflowGroups, 'eZApproveTantaType::execute::workflowGroups' );
-        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $languageMask, 'eZApproveTantaType::execute::languageMask' );
-        eZDebugSetting::writeDebug( 'kernel-workflow-approve', $object->attribute( 'section_id'), 'eZApproveTantaType::execute::section_id' );
+        eZDebugSetting::writeDebug('kernel-workflow-approve', $user, 'eZApproveTantaType::execute::user');
+        eZDebugSetting::writeDebug('kernel-workflow-approve', $userGroups, 'eZApproveTantaType::execute::userGroups');
+        eZDebugSetting::writeDebug('kernel-workflow-approve', $editors, 'eZApproveTantaType::execute::editor');
+        eZDebugSetting::writeDebug('kernel-workflow-approve', $approveGroups, 'eZApproveTantaType:execute::approveGroups');
+        eZDebugSetting::writeDebug('kernel-workflow-approve', $workflowSections, 'eZApproveTantaType::execute::workflowSections');
+        eZDebugSetting::writeDebug('kernel-workflow-approve', $workflowGroups, 'eZApproveTantaType::execute::workflowGroups');
+        eZDebugSetting::writeDebug('kernel-workflow-approve', $workflowClasses, 'eZApproveTantaType::execute::classGroups');
+        eZDebugSetting::writeDebug('kernel-workflow-approve', $languageMask, 'eZApproveTantaType::execute::languageMask');
+        eZDebugSetting::writeDebug('kernel-workflow-approve', $object->attribute('section_id'), 'eZApproveTantaType::execute::section_id');
 
-        $section = $object->attribute( 'section_id' );
+        $section        = $object->attribute('section_id');
+        $classID        = $object->attribute('contentclass_id');
         $correctSection = false;
+        $correctClass   = false;
 
         if ( !in_array( $section, $workflowSections ) && !in_array( -1, $workflowSections ) )
         {
@@ -231,7 +257,12 @@ class eZApproveTantaType extends eZWorkflowEventType
         else
             $correctSection = true;
 
-        $inExcludeGroups = count( array_intersect( $userGroups, $workflowGroups ) ) != 0;
+        if ( in_array( $classID, $workflowClasses ) || in_array( -1, $workflowClasses ) )
+        {
+            $correctClass = true;
+        }
+
+        $inExcludeGroups = count(array_intersect($userGroups, $workflowGroups)) != 0;
 
         $userIsEditor = ( in_array( $user->id(), $editors ) ||
                           count( array_intersect( $userGroups, $approveGroups ) ) != 0 );
@@ -247,12 +278,11 @@ class eZApproveTantaType extends eZWorkflowEventType
             $hasLanguageMatch = (bool)( $languageMask & $languageID );
         }
 
-        if ( $hasLanguageMatch and
-             !$userIsEditor and
-             !$inExcludeGroups and
-             $correctSection )
-        {
-
+        if ($hasLanguageMatch &&
+             !$userIsEditor &&
+             !$inExcludeGroups &&
+             $correctSection &&
+             $correctClass) {
             /* Get user IDs from approve user groups */
             $userClassIDArray = eZUser::contentClassIDs();
             $approveUserIDArray = array();
@@ -486,12 +516,22 @@ class eZApproveTantaType extends eZWorkflowEventType
             $event->setAttribute( "data_text1", $sectionsString );
         }
 
-        $languageVar = $base . "_event_ezapprove_languages_" . $event->attribute( "id" );
-        if ( $http->hasPostVariable( $languageVar ) )
+        $classVar = $base . "_event_ezapprove_classes_" . $event->attribute("id");
+        if ( $http->hasPostVariable($classVar) )
         {
-            $languageArray = $http->postVariable( $languageVar );
-            if ( in_array( '-1', $languageArray ) )
+            $classesArray = $http->postVariable($classVar);
+            if ( in_array('-1', $classesArray) )
             {
+                $classesArray = array( -1 );
+            }
+            $classesString = implode(',', $classesArray);
+            $event->setAttribute("data_text5", $classesString);
+        }
+
+        $languageVar = $base . "_event_ezapprove_languages_" . $event->attribute("id");
+        if ($http->hasPostVariable($languageVar)) {
+            $languageArray = $http->postVariable($languageVar);
+            if (in_array('-1', $languageArray)) {
                 $languageArray = array();
             }
             $languageMask = 0;
