@@ -32,6 +32,17 @@
     </select>
 </div>
 
+{* Classes *}
+<div class="element">
+    <label>{'Classes to run workflow'|i18n( 'design/admin/workflow/eventtype/edit' )}:</label>
+    <select name="WorkflowEvent_event_ezapprove_classes_{$event.id}[]" size="5" multiple="multiple">
+    <option value="-1"{if $event.selected_classes|contains( -1 )} selected="selected" {/if}>{'All classes'|i18n( 'design/admin/workflow/eventtype/edit' )}</option>
+    {section var=Classes loop=$event.workflow_type.contentclass_list}
+    <option value="{$Classes.item.value}"{if $event.selected_classes|contains( $Classes.item.value )} selected="selected"{/if}>{$Classes.item.Name|wash}</option>
+    {/section}
+    </select>
+</div>
+
 {* Affected versions option *}
 <div class="element">
     <label>{'Affected versions'|i18n( 'design/admin/workflow/eventtype/edit' )}:</label>
