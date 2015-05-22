@@ -32,6 +32,29 @@
 </div>
 
 <div class="element">
+{let selectedClasses=$event.selected_classes}
+{"Classes to run workflow"|i18n("design/standard/workflow/eventtype/view")}:
+
+{section show=$selectedClasses|contains(-1)}
+{"Any"|i18n("design/standard/workflow/eventtype/view")}
+{section-else}
+
+{let comma=false()}
+{section var=class loop=$event.workflow_type.contentclass_list}
+{if $selectedClasses|contains($class.value)}
+{if $comma}, {/if}
+{$class.Name|wash}
+{set comma=true()}
+{/if}
+{/section}
+{/let}
+
+{/section}
+
+{/let}
+</div>
+
+<div class="element">
 {"Users without approval"|i18n("design/standard/workflow/eventtype/view")}:
 
 {section var=group loop=$event.selected_usergroups}
